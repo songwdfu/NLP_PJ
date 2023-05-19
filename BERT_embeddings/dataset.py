@@ -19,7 +19,7 @@ class FNCDataset(Dataset):
             head_ext: head external features
             body_ext: body external features
       return:
-            a tuple of (head_trans, body_tran, head_ext, body_ext)
+            a tuple of (head_trans, body_trans, head_ext, body_ext)
       """
       def __init__(self, path, output_type='both'):
             super().__init__()
@@ -30,21 +30,30 @@ class FNCDataset(Dataset):
             self.head_ext = []
             self.body_ext = []
             self.labels = []
+            self._read()
       
-      def read(self):
+      def _read(self):
+            # df = pd.read_csv(self.path)
             df = pkl.load(open(self.path, 'rb'))
-            self.head_trans = list(df.head_transfer_embeddings)
-            self.body_trans = list(df.body_transfer_embeddings)
-            self.head_ext = list(df.head_external_embeddings)
-            self.head_ext = list(df.body_external_embeddings)
-            self.labels = list(df.labels)
+            if self.output_type == 'both':
+                  self.head_trans = list(df.embeddings_head)
+                  self.body_trans = list(df.embeddings_body)
+                  # self.head_ext = list(df.head_external_embeddings)
+                  # self.head_ext = list(df.body_external_embeddings)
+                  self.labels = list(df.Stance)
+            elif self.output_type == 'trans':
+                  self.head_trans = list(df.embeddings_head)
+                  self.body_trans = list(df.embeddings_body)
+                  self.labels = list(df.Stance)
+            else:
+                  raise ValueError(r"Only 'both' and 'trans' are valid options")
       
       def __len__(self):
             return len(self.head_trans)
       
       def __getitem__(self, index):
-            # only implemented both
-            return self.head_trans[index], self.body_trans[index], self.head_ext[index], self.body_ext[index], self.labels[index]
+            # only implemented trans
+            return self.head_trans[index], self.body_trans[index], self.labels[index]
             
             # if self.output_type == 'both':
             #       return self.head_trans[index], self.body_trans[index], self.head_ext[index], self.body_ext[index]
@@ -52,3 +61,4 @@ class FNCDataset(Dataset):
             #       return self.head_ext[index], self.body_ext[index]
             # if self.output_type == 'trans':
             #       return self.head_trans[index], self. body_trans[index]
+      

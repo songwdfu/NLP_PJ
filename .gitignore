@@ -5,3 +5,5 @@ archead.csv
 arcbody.pkl
 archead.pkl
 .cache/
+dataset/
+train.csv

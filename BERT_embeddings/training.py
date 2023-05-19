@@ -44,8 +44,9 @@ def train(model, args):
             losses = []
             accs = []
             for batch in tqdm(train_dataloader, total=len(train_dataloader)):
-                  head_trans, body_trans, head_ext, body_ext, labels = batch
-                  input = torch.cat([head_trans, body_trans, head_ext, body_ext], dim=0)
+                  opt.zero_grad()
+                  head_trans, body_trans, labels = batch  # head_ext, body_ext
+                  input = torch.cat([head_trans, body_trans], dim=0)
                   input.to(device)
                   output = model(batch)
                   loss = loss_func(output, labels)
@@ -98,6 +99,7 @@ if __name__ == '__main__':
       
       device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 
+      
       model = FullModel(input_shape, hidden_structure=[64, 32])
       
       history = train(model, args)
