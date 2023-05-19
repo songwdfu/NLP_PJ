@@ -21,9 +21,9 @@ class FullModel(nn.Module):
                   
                   layer.append(nn.ReLU())
             
-            self.hidden_layers = nn.Sequential(layer)
+            self.hidden_layers = nn.Sequential(*layer)
             self.fc_layer = nn.Linear(hidden_structure[-1], 4)
-            self.softmax = nn.Softmax(4)
+            self.softmax = nn.Softmax(-1)
             
             
       def forward(self, input):

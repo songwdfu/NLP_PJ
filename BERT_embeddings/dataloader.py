@@ -11,8 +11,7 @@ if __name__ == '__main__':
       import sys
       sys.path.insert(0, '.')
       from dataset import FNCDataset
-      dataset = FNCDataset('/gpt_embeddings/fnc_train.pkl', 'trans')
+      dataset = FNCDataset('/gpt_embeddings/fnc_train_mean.pkl', 'trans')
       dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
       for batch in dataloader:
-            print(batch)
-            break
+            batch

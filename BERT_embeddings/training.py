@@ -36,9 +36,9 @@ def train(model, args):
       model.to(device)
       model.train()
       
-      opt = torch.optim.Adam(model.parameters(), lr=1e-3, decay=0)
+      opt = torch.optim.Adam(model.parameters(), lr=1e-3)
       loss_func = WeightedCELoss(weights)
-      for e in epochs:
+      for e in range(epochs):
             print(f'Epoch: {e}')
             # training
             losses = []
@@ -46,9 +46,9 @@ def train(model, args):
             for batch in tqdm(train_dataloader, total=len(train_dataloader)):
                   opt.zero_grad()
                   head_trans, body_trans, labels = batch  # head_ext, body_ext
-                  input = torch.cat([head_trans, body_trans], dim=0)
-                  input.to(device)
-                  output = model(batch)
+                  input = torch.cat([head_trans, body_trans], dim=1).to(device)
+                  labels = labels.to(device)
+                  output = model(input)
                   loss = loss_func(output, labels)
                   loss.backward()
                   opt.step()
@@ -94,12 +94,15 @@ def train(model, args):
 if __name__ == '__main__':
       parser = argparse.ArgumentParser()
       parser.add_argument('--device', type=int, default=0)
-      parser.add_argument('--epochs', type=int, default=10)
+      parser.add_argument('--epochs', type=int, default=1)
+      parser.add_argument('--train_path', type=str, default='/gpt_embeddings/fnc_train_mean.pkl')
+      parser.add_argument('--val_path', type=str, default='/gpt_embeddings/fnc_val_mean.pkl')
       args = parser.parse_args()
       
       device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
 
-      
+      input_shape = 768*2
+
       model = FullModel(input_shape, hidden_structure=[64, 32])
       
       history = train(model, args)
