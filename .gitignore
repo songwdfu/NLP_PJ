@@ -1,0 +1,6 @@
+gpt_embeddings/
+.cache/
+arcbody.csv
+archead.csv
+arcbody.pkl
+archead.pkl
