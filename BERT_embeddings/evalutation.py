@@ -20,10 +20,6 @@ def eval(model, args):
       return:
             history: dict of loss, acc, val_loss, val_acc
       """
-      # train_dataset = FNCDataset(args.train_path, output_type='both')
-      # train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-      # val_dataset = FNCDataset(args.val_path, output_type="both")
-      # val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
 
       test_dataset = FNCDataset(args.test_path, output_type="both")
       test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
@@ -67,7 +63,7 @@ def eval(model, args):
       
       print(f'test_loss: {ep_val_loss}, test_acc: {ep_val_acc}')
       rep = classification_report(val_labels, val_preds)
-      print(rep)
+      # print(rep)
 
       return rep
       
@@ -75,8 +71,8 @@ def eval(model, args):
 if __name__ == '__main__':
       parser = argparse.ArgumentParser()
       parser.add_argument('--device', type=int, default=0)
-      parser.add_argument('--test_path', type=str, default='/gpt_embeddings/fnc_test_mean.pkl')
-      parser.add_argument('--checkpoint_dir', type=str, default='checkpoints/model_ep30.pth')
+      parser.add_argument('--test_path', type=str, default='/gpt_embeddings/fnc_comp_test_mean.pkl')
+      parser.add_argument('--checkpoint_dir', type=str, default='checkpoints/total_model_ep48.pth')
       args = parser.parse_args()
       
       device = torch.device(f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu')
@@ -84,9 +80,12 @@ if __name__ == '__main__':
       input_shape = 768*2
 
       model = FullModel(input_shape, hidden_structure=[128, 128, 64, 32])
-      model.load_state_dict(args.checkpoint_dir)
+      state_dict = torch.load(args.checkpoint_dir)
+      model.load_state_dict(state_dict)
       
       rep = eval(model, args)
       
+      print(rep)
+
       # pkl.dump(history, open(f'checkpoints/history_ep{args.epochs}.pkl','wb'))
       
