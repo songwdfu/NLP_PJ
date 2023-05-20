@@ -10,7 +10,7 @@ class FullModel(nn.Module):
       """
       Full model using Transferred embeddings and external features
       """
-      def __init__(self, input_shape, hidden_structure=[64, 32]):
+      def __init__(self, input_shape, hidden_structure=[128, 128, 64, 32]):
             super().__init__()
             layer = []
             for i, hidden_size in enumerate(hidden_structure):
@@ -19,6 +19,7 @@ class FullModel(nn.Module):
                   else:
                         layer.append(nn.Linear(hidden_structure[i-1], hidden_size))
                   
+                  layer.append(nn.BatchNorm1d(hidden_size))
                   layer.append(nn.ReLU())
             
             self.hidden_layers = nn.Sequential(*layer)
