@@ -1,6 +1,7 @@
 import torch
 import torch.nn
 import pandas as pd
+import numpy as np
 import pickle as pkl
 from torch.utils.data import Dataset
 
@@ -30,6 +31,7 @@ class FNCDataset(Dataset):
             self.head_ext = []
             self.body_ext = []
             self.labels = []
+            self.external = []
             self._read()
       
       def _read(self):
@@ -38,23 +40,27 @@ class FNCDataset(Dataset):
             if self.output_type == 'both':
                   self.head_trans = list(df.embeddings_head)
                   self.body_trans = list(df.embeddings_body)
-                  # self.head_ext = list(df.head_external_embeddings)
-                  # self.head_ext = list(df.body_external_embeddings)
                   self.labels = list(df.Stance)
-            elif self.output_type == 'trans':
+            elif self.output_type == 'ext':
                   self.head_trans = list(df.embeddings_head)
                   self.body_trans = list(df.embeddings_body)
+                  self.external = df.iloc[:, 9:].values.astype(np.float32)
                   self.labels = list(df.Stance)
+            elif self.output_type == 'ext_only':
+                  self.external = df.iloc[:, 9:].values.astype(np.float32)
             else:
-                  raise ValueError(r"Only 'both' and 'trans' are valid options")
+                  raise ValueError(r"Only 'both' and 'ext' are valid options")
       
       def __len__(self):
             return len(self.head_trans)
       
       def __getitem__(self, index):
             # only implemented trans
-            return self.head_trans[index], self.body_trans[index], self.labels[index]
-            
+            if self.output_type == 'both':
+                  return self.head_trans[index], self.body_trans[index], self.labels[index]
+            if self.output_type == 'ext_only':
+                  return self.external[index], self.labels[index]
+            return self.head_trans[index], self.body_trans[index], self.external[index], self.labels[index]
             # if self.output_type == 'both':
             #       return self.head_trans[index], self.body_trans[index], self.head_ext[index], self.body_ext[index]
             # if self.output_type == 'ext':
